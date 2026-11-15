@@ -4,9 +4,7 @@ import { el } from './dom.js';
 
 export interface ViewHandlers {
   onRetry: () => void;
-  onSelect: (country: Country) => void;
-  onClose: () => void;
-  selected: Country | null;
+  onSelect: (country: Country, item: HTMLElement) => void;
 }
 
 const numberFormat = new Intl.NumberFormat('en-US');
@@ -28,10 +26,14 @@ function renderFlag(country: Country): HTMLElement {
   return el('span', 'flag flag-emoji', country.flag);
 }
 
-function renderCard(country: Country, handlers: ViewHandlers): HTMLElement {
+function renderCard(
+  country: Country,
+  item: HTMLElement,
+  handlers: ViewHandlers,
+): HTMLElement {
   const card = el('button', 'card');
   card.type = 'button';
-  card.addEventListener('click', () => handlers.onSelect(country));
+  card.addEventListener('click', () => handlers.onSelect(country, item));
 
   const info = el('span', 'card-info');
   info.append(
@@ -83,10 +85,7 @@ export function renderState(
       const list = el('ul', 'cards');
       state.countries.forEach((country) => {
         const item = el('li');
-        item.append(renderCard(country, handlers));
-        if (handlers.selected?.name === country.name) {
-          item.append(renderDetail(country, handlers.onClose));
-        }
+        item.append(renderCard(country, item, handlers));
         list.append(item);
       });
       return [list];
