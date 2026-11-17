@@ -15,10 +15,10 @@ function renderFlag(country) {
     }
     return el('span', 'flag flag-emoji', country.flag);
 }
-function renderCard(country, handlers) {
+function renderCard(country, item, handlers) {
     const card = el('button', 'card');
     card.type = 'button';
-    card.addEventListener('click', () => handlers.onSelect(country));
+    card.addEventListener('click', () => handlers.onSelect(country, item));
     const info = el('span', 'card-info');
     info.append(el('strong', 'card-name', country.name), el('span', '', `Capital: ${country.capital}`), el('span', '', `Region: ${country.region || '—'}`), el('span', '', `Population: ${numberFormat.format(country.population)}`));
     card.append(renderFlag(country), info);
@@ -51,10 +51,7 @@ export function renderState(state, handlers) {
             const list = el('ul', 'cards');
             state.countries.forEach((country) => {
                 const item = el('li');
-                item.append(renderCard(country, handlers));
-                if (handlers.selected?.name === country.name) {
-                    item.append(renderDetail(country, handlers.onClose));
-                }
+                item.append(renderCard(country, item, handlers));
                 list.append(item);
             });
             return [list];
