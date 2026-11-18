@@ -1,12 +1,24 @@
+import { createCachedSearch } from './core/cachedSearch.js';
 import { createSearchController } from './core/searchController.js';
 import { searchCountries } from './core/searchCountries.js';
+import { createSearchHistory, type StorageLike } from './core/searchHistory.js';
 import type { Country } from './core/types.js';
 import { el } from './ui/dom.js';
-import { renderDetail, renderState } from './ui/view.js';
+import { renderDetail, renderHistory, renderState } from './ui/view.js';
 
 const controller = createSearchController({
-  search: (query, signal) => searchCountries(query, signal),
+  search: createCachedSearch((query, signal) => searchCountries(query, signal)),
 });
+
+function getStorage(): StorageLike {
+  try {
+    return window.localStorage;
+  } catch {
+    return { getItem: () => null, setItem: () => undefined };
+  }
+}
+
+const history = createSearchHistory(getStorage());
 
 let open: { name: string; panel: HTMLElement } | null = null;
 
@@ -16,11 +28,13 @@ input.placeholder = 'For example, spain';
 input.autocomplete = 'off';
 input.setAttribute('aria-label', 'Country name');
 
+const historyBox = el('div', 'history');
+
 const results = el('div', 'results');
 results.setAttribute('aria-live', 'polite');
 
 const app = el('main', 'app');
-app.append(el('h1', '', 'Country Search'), input, results);
+app.append(el('h1', '', 'Country Search'), input, historyBox, results);
 document.body.append(app);
 
 function collapse(panel: HTMLElement): void {
@@ -43,7 +57,22 @@ function toggleDetail(country: Country, item: HTMLElement): void {
   open = { name: country.name, panel };
 }
 
+function pickFromHistory(query: string): void {
+  input.value = query;
+  controller.input(query);
+  input.focus();
+}
+
+function renderHistoryBox(): void {
+  const items = controller.getState().status === 'idle' ? history.get() : [];
+
+  historyBox.replaceChildren(
+    ...(items.length > 0 ? [renderHistory(items, pickFromHistory)] : []),
+  );
+}
+
 function render(): void {
+  renderHistoryBox();
   results.replaceChildren(
     ...renderState(controller.getState(), {
       onRetry: () => controller.retry(),
@@ -52,7 +81,8 @@ function render(): void {
   );
 }
 
-controller.subscribe(() => {
+controller.subscribe((state) => {
+  if (state.status === 'success') history.add(state.query);
   open = null;
   render();
 });

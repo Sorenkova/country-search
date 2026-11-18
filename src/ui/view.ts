@@ -93,6 +93,23 @@ export function renderState(
   }
 }
 
+export function renderHistory(
+  items: string[],
+  onPick: (query: string) => void,
+): HTMLElement {
+  const list = el('div', 'history-list');
+  list.append(el('span', 'history-label', 'Recent:'));
+
+  items.forEach((query) => {
+    const chip = el('button', 'history-item', query);
+    chip.type = 'button';
+    chip.addEventListener('click', () => onPick(query));
+    list.append(chip);
+  });
+
+  return list;
+}
+
 export function renderDetail(
   country: Country,
   onClose: () => void,
