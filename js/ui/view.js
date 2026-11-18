@@ -58,6 +58,17 @@ export function renderState(state, handlers) {
         }
     }
 }
+export function renderHistory(items, onPick) {
+    const list = el('div', 'history-list');
+    list.append(el('span', 'history-label', 'Recent:'));
+    items.forEach((query) => {
+        const chip = el('button', 'history-item', query);
+        chip.type = 'button';
+        chip.addEventListener('click', () => onPick(query));
+        list.append(chip);
+    });
+    return list;
+}
 export function renderDetail(country, onClose) {
     const panel = el('section', 'detail-panel');
     const close = el('button', 'detail-close', 'Close');

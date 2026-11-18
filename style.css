@@ -77,6 +77,44 @@ h1 {
   appearance: none;
 }
 
+.history {
+  margin-top: 16px;
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  animation: fade-up 0.5s var(--ease) backwards;
+}
+
+.history-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.history-item {
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.3s var(--ease),
+    border-color 0.3s var(--ease);
+}
+
+.history-item:hover,
+.history-item:focus-visible {
+  color: var(--text);
+  border-color: var(--line-strong);
+  outline: none;
+}
+
 .results {
   margin-top: 20px;
 }
